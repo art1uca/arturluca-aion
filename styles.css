@@ -866,13 +866,15 @@ select.inp { text-align: left; }
 .vampire-overlay, .terminator-overlay {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: 10000; display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.9); color: #f00; font-family: 'Space Grotesk', sans-serif; 
+  background: rgba(0,0,0,0.95); color: #fff; /* Строгий белый цвет вместо красного */
+  font-family: 'Space Grotesk', sans-serif; 
   text-align: center; font-size: 1.5rem; padding: 20px; font-weight: bold;
-  animation: flashWarning 1s infinite; pointer-events: none;
+  animation: flashWarning 1.2s infinite; pointer-events: none;
 }
 .terminator-overlay {
-  border: 10px solid #f00; background: rgba(20,0,0,0.9);
-  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,0,0,0.1) 2px, rgba(255,0,0,0.1) 4px);
+  border: 10px solid #fff; 
+  background: rgba(10,10,10,0.95);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px);
 }
 @keyframes flashWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
@@ -889,8 +891,11 @@ select.inp { text-align: left; }
   75% { transform: translate(-1px, 2px) rotate(0deg); }
   100% { transform: translate(1px, -1px) rotate(0deg); }
 }
-.red-vignette {
-  box-shadow: inset 0 0 150px rgba(255,0,0,0.8); pointer-events: none; 
+
+/* Экран темнеет от нехватки питания вместо красного свечения */
+.overheat-vignette {
+  box-shadow: inset 0 0 150px rgba(0,0,0,0.95); 
+  pointer-events: none; 
   position: fixed; inset: 0; z-index: 9999;
 }
 

@@ -198,7 +198,6 @@
         }
         if (dVal === 24 && mVal === 1 && yVal === 1955 && !document.body.classList.contains("jobs-mode")) {
           document.body.classList.add("jobs-mode");
-          // Звук старого мака
           activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_793910543e.mp3"); 
           activeAudio.play().catch(()=>{});
         }
@@ -336,10 +335,10 @@
     setAccent(m.color);
     const dur = Math.max(500, loadDuration(m));
 
-    // Перегрев Llama
+    // Перегрев Llama (исправлен на черную виньетку)
     if (m.id === "llama") {
       document.body.classList.add("shake-body");
-      const vig = el("div", "red-vignette"); vig.id = "llamaVig";
+      const vig = el("div", "overheat-vignette"); vig.id = "llamaVig";
       document.body.appendChild(vig);
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/10/16/audio_901c590d96.mp3"); // гул кулера
       activeAudio.loop = true; activeAudio.volume = 0.8; activeAudio.play().catch(()=>{});
