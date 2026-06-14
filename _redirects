@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+# Redirect www -> apex (non-www), preserving path
+https://www.aion.art1uca.com/* https://aion.art1uca.com/:splat 301
