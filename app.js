@@ -83,9 +83,12 @@
   };
   const iconFor = k => ICON[k] || ICON.spark;
 
-  /* ---------- screen transition ---------- */
+  /* ---------- screen transition & easter eggs ---------- */
   let timers = [];
   let raf = null;
+  let activeAudio = null;
+  let matrixRaf = null;
+
   function clearTimers() {
     timers.forEach(clearTimeout); timers = [];
     if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -237,14 +240,11 @@
   /* ============================================================
      OUTCOME RESOLUTION
      ============================================================ */
-  // tracks which outcomes were already shown per model (resets on page reload)
   const seen = {};
 
   function successFallback(m) {
-    // prefer one of the model's own real-age replies so it keeps its voice…
     const real = (m.outcomes || []).filter(o => o.kind === "age" && o.number === "real");
     if (real.length) return real[Math.floor(Math.random() * real.length)];
-    // …otherwise a clean, neutral success with the true age
     return { id: "__success", kind: "age", number: "real", reply: "Готово. Ваш возраст — {age} {years}." };
   }
 
@@ -252,7 +252,6 @@
     const d = state.director;
     const targeted = d.model === m.id;
 
-    // director forces a specific outcome → return it as-is (no dedup, no tracking)
     if (targeted && d.outcome !== "random") {
       const forced = (m.outcomes || []).find(o => o.id === d.outcome);
       if (forced) return forced;
@@ -263,11 +262,9 @@
     else if (targeted && d.mode === "error") pool = pool.filter(o => o.kind === "message");
     if (!pool.length) pool = m.outcomes || [];
 
-    // skip anything already shown for this model
     const shown = seen[m.id] || (seen[m.id] = new Set());
     const fresh = pool.filter(o => !shown.has(o.id));
 
-    // nothing new left → finish on a successful age result
     if (!fresh.length) return successFallback(m);
 
     const chosen = fresh[Math.floor(Math.random() * fresh.length)];
@@ -324,7 +321,6 @@
     const tmr = s.querySelector("#tmr");
     const fill = s.querySelector("#barfill");
 
-    // assemble a line schedule that fills the duration
     let lines = GENERIC.slice(0, 2).concat(m.trace);
     const minPer = 700;
     while (lines.length * minPer < dur - minPer) lines = lines.concat(m.trace);
@@ -341,7 +337,6 @@
       }, Math.round(step * (i + 1)));
     });
 
-    // progress + timer via rAF
     const start = performance.now();
     function tick(now) {
       const p = Math.min(1, (now - start) / dur);
@@ -361,7 +356,7 @@
   }
 
   /* ============================================================
-     RESULT
+     RESULT & EASTER EGGS LOGIC
      ============================================================ */
   function countUp(node, target) {
     if (RM || target === 0) { node.textContent = target; return; }
@@ -374,6 +369,18 @@
       else node.textContent = target;
     }
     raf = requestAnimationFrame(tick);
+  }
+
+  function runEasterEggs(outcomeId) {
+    if (outcomeId === "queue") {
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/05/16/audio_db6591201e.mp3");
+      activeAudio.loop = true;
+      activeAudio.volume = 0.3;
+      activeAudio.play().catch(e => console.log("Audio autoplay blocked by browser"));
+    }
+    if (outcomeId === "pentagon") {
+      startMatrixEffect();
+    }
   }
 
   function buildResult() {
@@ -402,7 +409,8 @@
       wireActions(s);
       show(s);
       after(() => countUp(numNode, num), RM ? 0 : 350);
-      return null; // already shown
+      runEasterEggs(outcome.id);
+      return null; 
     } else {
       s.innerHTML = `
         <div class="result-top">
@@ -413,6 +421,7 @@
         ${actionsHTML()}
       `;
       wireActions(s);
+      runEasterEggs(outcome.id);
       return s;
     }
   }
@@ -506,9 +515,21 @@
   }
 
   /* ============================================================
-     ROUTER
+     ROUTER & CLEANUP
      ============================================================ */
   function go(screen) {
+    // Очистка эффектов при уходе с экрана результата
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio = null;
+    }
+    const oldMatrix = document.getElementById("matrixCanvas");
+    if (oldMatrix) oldMatrix.remove();
+    if (matrixRaf) {
+      cancelAnimationFrame(matrixRaf);
+      matrixRaf = null;
+    }
+
     clearTimers();
     state.screen = screen;
     let node = null;
@@ -517,7 +538,7 @@
       case "birth": node = buildBirth(); break;
       case "models": node = buildModels(); break;
       case "loading": node = buildLoading(); break;
-      case "result": node = buildResult(); break;   // may self-show & return null
+      case "result": node = buildResult(); break;   
       case "paywall": node = buildPaywall(); break;
     }
     if (node) show(node);
@@ -534,6 +555,47 @@
     a.setAttribute("aria-label", "Instagram @art1uca — подписаться");
     a.innerHTML = `<span class="ig-ico">${ICON.instagram}</span><span>@art1uca</span><span class="ig-sub">· подписаться</span>`;
     document.body.appendChild(a);
+  }
+
+  /* ============================================================
+     MATRIX EFFECT
+     ============================================================ */
+  function startMatrixEffect() {
+    const canvas = document.createElement("canvas");
+    canvas.id = "matrixCanvas";
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~".split("");
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+
+    function draw() {
+      ctx.fillStyle = "rgba(20, 16, 13, 0.1)"; 
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0F0"; 
+      ctx.font = fontSize + "px 'Space Grotesk', monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      matrixRaf = requestAnimationFrame(draw);
+    }
+    
+    matrixRaf = requestAnimationFrame(draw);
+    setTimeout(() => canvas.style.opacity = "0.4", 100); 
   }
 
   /* ============================================================

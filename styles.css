@@ -843,3 +843,19 @@ select.inp { text-align: left; }
   .logo { font-size: 80px; }
   .screen.loading .load-top { margin-top: 2vh; }
 }
+
+/* ============================================================
+   EASTER EGGS
+   ============================================================ */
+#matrixCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none; /* Чтобы текст не перекрывал кнопки */
+  opacity: 0;
+  transition: opacity 1.5s ease-in;
+  mix-blend-mode: screen; /* Красиво ложится поверх шума и градиентов */
+}
