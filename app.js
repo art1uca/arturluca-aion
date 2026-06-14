@@ -372,14 +372,28 @@
   }
 
   function runEasterEggs(outcomeId) {
+    // 1. Лифтовая музыка для очереди GigaChat
     if (outcomeId === "queue") {
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/05/16/audio_db6591201e.mp3");
       activeAudio.loop = true;
       activeAudio.volume = 0.3;
-      activeAudio.play().catch(e => console.log("Audio autoplay blocked by browser"));
+      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
     }
+    
+    // 2. Матрица + звук тревоги для Fable 5
     if (outcomeId === "pentagon") {
       startMatrixEffect();
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"); // Сирена
+      activeAudio.loop = true;
+      activeAudio.volume = 0.4;
+      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
+    }
+
+    // 3. Легендарный звук ошибки Windows XP для Скрепыша
+    if (outcomeId === "bsod") {
+      activeAudio = new Audio("https://www.myinstants.com/media/sounds/windows-xp-error.mp3");
+      activeAudio.volume = 0.6;
+      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
     }
   }
 
