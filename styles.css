@@ -116,13 +116,48 @@ body {
   transition: background 0.7s var(--ease);
 }
 
+/* ---------- Instagram bar (persistent, all screens) ---------- */
+.ig-bar {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px 8px 12px;
+  border-radius: 100px;
+  background: rgba(30, 24, 19, 0.74);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 10px 32px -14px rgba(0,0,0,0.8);
+  transition: transform 0.25s var(--ease), border-color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.ig-bar:hover {
+  transform: translateX(-50%) translateY(-1px);
+  border-color: color-mix(in oklab, var(--latte) 50%, transparent);
+  background: rgba(38, 31, 24, 0.85);
+}
+.ig-bar:active { transform: translateX(-50%) scale(0.97); }
+.ig-bar .ig-ico { display: inline-flex; color: var(--latte); }
+.ig-bar .ig-sub { color: var(--muted); font-weight: 500; }
+
 /* ---------- Screen system ---------- */
 .screen {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  padding: 26px 22px calc(26px + env(safe-area-inset-bottom));
+  padding: 60px 22px calc(26px + env(safe-area-inset-bottom));
   z-index: 1;
 }
 .screen-scroll { overflow-y: auto; }
@@ -191,6 +226,16 @@ body {
   border: 1px solid var(--line);
 }
 .btn-ghost:hover { background: var(--surface-2); }
+
+/* Instagram follow button (result / confession) */
+.btn-ig {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid color-mix(in oklab, var(--latte) 32%, var(--line));
+  text-decoration: none;
+}
+.btn-ig:hover { background: var(--surface-2); border-color: color-mix(in oklab, var(--latte) 55%, transparent); }
+.btn-ig svg { color: var(--latte); }
 
 .btn-row { display: flex; flex-direction: column; gap: 12px; }
 
@@ -267,8 +312,11 @@ body {
   font-size: 11px;
   letter-spacing: 0.16em;
   color: var(--muted);
-  opacity: 0.7;
+  opacity: 0.85;
+  text-decoration: none;
+  transition: opacity 0.25s var(--ease), color 0.25s var(--ease);
 }
+.byline:hover { opacity: 1; color: var(--text); }
 .byline b { color: var(--latte); font-weight: 600; }
 
 /* ============================================================
@@ -582,6 +630,7 @@ select.inp { text-align: left; }
   margin-bottom: 5px;
   display: block;
 }
+.bubble b { color: var(--latte); font-weight: 600; }
 .bubble .cost {
   display: block; margin-top: 8px;
   font-family: var(--font-ui);
@@ -743,7 +792,7 @@ select.inp { text-align: left; }
   /* every screen centres a comfortable content column */
   .screen {
     align-items: center;
-    padding: 56px 40px calc(48px + env(safe-area-inset-bottom));
+    padding: 84px 40px calc(48px + env(safe-area-inset-bottom));
   }
   .screen > *:not(.spacer) {
     width: 100%;
@@ -757,7 +806,7 @@ select.inp { text-align: left; }
   .screen.birth .spacer { flex: 0 0 40px; }
 
   /* model select: wider, three columns, spread across the screen */
-  .screen.screen-scroll { padding-top: 64px; }
+  .screen.screen-scroll { padding-top: 92px; }
   .screen > .models-head { max-width: 880px; text-align: center; }
   .screen > .models-head h1 { font-size: 40px; }
   .screen > .models-head p { font-size: 16px; }
@@ -794,4 +843,3 @@ select.inp { text-align: left; }
   .logo { font-size: 80px; }
   .screen.loading .load-top { margin-top: 2vh; }
 }
-
