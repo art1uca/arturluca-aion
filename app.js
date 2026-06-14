@@ -383,17 +383,18 @@
     // 2. Матрица + звук тревоги для Fable 5
     if (outcomeId === "pentagon") {
       startMatrixEffect();
-      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"); // Сирена
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3");
       activeAudio.loop = true;
       activeAudio.volume = 0.4;
       activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
     }
 
-    // 3. Легендарный звук ошибки Windows XP для Скрепыша
+    // 3. Звук ошибки Windows XP + Синий Экран
     if (outcomeId === "bsod") {
       activeAudio = new Audio("https://www.myinstants.com/media/sounds/windows-xp-error.mp3");
       activeAudio.volume = 0.6;
       activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
+      showBSOD();
     }
   }
 
@@ -543,6 +544,8 @@
       cancelAnimationFrame(matrixRaf);
       matrixRaf = null;
     }
+    const oldBsod = document.getElementById("bsodOverlay");
+    if (oldBsod) oldBsod.remove();
 
     clearTimers();
     state.screen = screen;
@@ -610,6 +613,69 @@
     
     matrixRaf = requestAnimationFrame(draw);
     setTimeout(() => canvas.style.opacity = "0.4", 100); 
+  }
+
+  /* ============================================================
+     BLUE SCREEN OF DEATH (BSOD) EFFECT
+     ============================================================ */
+  function showBSOD() {
+    const bsod = document.createElement("div");
+    bsod.id = "bsodOverlay";
+    // Стилизуем чистым инлайн-CSS под классический Windows экран смерти
+    bsod.style.position = "fixed";
+    bsod.style.top = "0";
+    bsod.style.left = "0";
+    bsod.style.width = "100vw";
+    bsod.style.height = "100vh";
+    bsod.style.backgroundColor = "#0000AA";
+    bsod.style.color = "#FFF";
+    bsod.style.fontFamily = "'Courier New', Courier, monospace";
+    bsod.style.fontSize = "16px";
+    bsod.style.padding = "8vmin";
+    bsod.style.zIndex = "10000";
+    bsod.style.display = "flex";
+    bsod.style.flexDirection = "column";
+    bsod.style.justifyContent = "center";
+    bsod.style.boxSizing = "border-box";
+    bsod.style.whiteSpace = "pre-wrap";
+    bsod.style.lineHeight = "1.5";
+    bsod.style.cursor = "pointer";
+
+    bsod.innerHTML = `A problem has been detected and AION has been shut down to prevent damage
+to your ego.
+
+AGE_CALCULATION_EXCEPTION
+
+If this is the first time you've seen this stop error screen,
+restart your browser. If this screen appears again, follow
+these steps:
+
+Check to make sure any new dates or years are properly calculated.
+If this is a new installation, ask your hardware or software manufacturer
+for any AION updates you might need.
+
+If problems continue, disable or remove any newly installed vibe-coders.
+Disable BIOS memory options such as caching or shadowing.
+
+Technical information:
+*** STOP: 0x000000FACE (0x00000000, 0x00000000, 0x00000000, 0x00000000)
+
+Press any key or click to continue_`;
+
+    document.body.appendChild(bsod);
+
+    // Функция возврата (имитация перезагрузки)
+    function dismiss(e) {
+      bsod.remove();
+      document.removeEventListener("keydown", dismiss);
+      go("models"); // Возвращаем пользователя обратно в живой интерфейс
+    }
+
+    // Добавляем задержку 0.5с, чтобы юзер не прокликал экран случайно
+    setTimeout(() => {
+      document.addEventListener("keydown", dismiss);
+      bsod.addEventListener("click", dismiss);
+    }, 500);
   }
 
   /* ============================================================
