@@ -859,3 +859,63 @@ select.inp { text-align: left; }
   transition: opacity 1.5s ease-in;
   mix-blend-mode: screen; /* Красиво ложится поверх шума и градиентов */
 }
+
+/* ============================================================
+   EASTER EGGS (DATES, MODELS, CHEATS)
+   ============================================================ */
+.vampire-overlay, .terminator-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 10000; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.9); color: #f00; font-family: 'Space Grotesk', sans-serif; 
+  text-align: center; font-size: 1.5rem; padding: 20px; font-weight: bold;
+  animation: flashWarning 1s infinite; pointer-events: none;
+}
+.terminator-overlay {
+  border: 10px solid #f00; background: rgba(20,0,0,0.9);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,0,0,0.1) 2px, rgba(255,0,0,0.1) 4px);
+}
+@keyframes flashWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.jobs-mode {
+  font-family: 'Courier New', Courier, monospace !important;
+  filter: grayscale(100%) contrast(150%);
+}
+
+.shake-body { animation: uiShake 0.15s infinite; }
+@keyframes uiShake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  25% { transform: translate(-2px, -1px) rotate(-1deg); }
+  50% { transform: translate(1px, -2px) rotate(1deg); }
+  75% { transform: translate(-1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -1px) rotate(0deg); }
+}
+.red-vignette {
+  box-shadow: inset 0 0 150px rgba(255,0,0,0.8); pointer-events: none; 
+  position: fixed; inset: 0; z-index: 9999;
+}
+
+.social-credit-toast {
+  position: fixed; top: 20px; right: 20px; background: #2FB457; color: white;
+  padding: 15px 25px; border-radius: 8px; font-weight: bold; z-index: 10000;
+  box-shadow: 0 4px 20px rgba(47,180,87,0.4);
+  animation: slideInToast 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes slideInToast { from { transform: translateX(150%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.censored-blur .screen { filter: blur(14px) grayscale(100%); pointer-events: none; transition: 0.3s; }
+.censored-stamp {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+  color: #d32f2f; border: 8px solid #d32f2f; font-size: clamp(3rem, 10vw, 6rem); 
+  font-weight: 900; padding: 10px 40px; letter-spacing: 5px; z-index: 10000; 
+  font-family: 'Inter', sans-serif; text-shadow: 0 0 20px rgba(211,47,47,0.6); 
+  border-radius: 10px; pointer-events: none; opacity: 0;
+  animation: stampDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s forwards;
+}
+@keyframes stampDown { from { transform: translate(-50%, -50%) rotate(-15deg) scale(3); opacity: 0; } to { transform: translate(-50%, -50%) rotate(-15deg) scale(1); opacity: 1; } }
+
+.skynet-mode {
+  --accent: #ff0000 !important; --accent-soft: rgba(255,0,0,0.15) !important;
+  background-color: #050000 !important; color: #ff3333 !important;
+}
+.skynet-mode .grain { opacity: 0.6; }
+.skynet-mode * { font-family: 'Courier New', Courier, monospace !important; }

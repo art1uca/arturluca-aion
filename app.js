@@ -66,7 +66,6 @@
     return e;
   }
 
-  // Функция для отрисовки имени с картинкой Скрепыша
   function renderName(m) {
     if (m.id === "clippy") {
       return `${m.name} <img src="pngegg.png" alt="Скрепыш" style="height: 1.2em; vertical-align: middle; margin-left: 6px; margin-top: -4px; display: inline-block;">`;
@@ -91,11 +90,12 @@
   };
   const iconFor = k => ICON[k] || ICON.spark;
 
-  /* ---------- screen transition & easter eggs ---------- */
+  /* ---------- screen transition & global refs ---------- */
   let timers = [];
   let raf = null;
   let activeAudio = null;
   let matrixRaf = null;
+  let skynetBuffer = "";
 
   function clearTimers() {
     timers.forEach(clearTimeout); timers = [];
@@ -180,7 +180,30 @@
       if (dt > new Date()) return null;
       return { d, m, y };
     }
+
     function update() {
+      const dVal = parseInt(bd.value, 10), mVal = parseInt(bm.value, 10), yVal = parseInt(by.value, 10);
+
+      // --- ПАСХАЛКИ ДЛЯ ДАТ ---
+      if (by.value.length === 4) {
+        if (yVal >= 1800 && yVal <= 1899 && !document.getElementById("vampireOverlay")) {
+          const v = el("div", "vampire-overlay", "Обнаружен вампир.<br>Отправка координат в инквизицию...");
+          v.id = "vampireOverlay"; document.body.appendChild(v);
+          setTimeout(() => v.remove(), 4000);
+        }
+        if (yVal > CUR_YEAR && !document.getElementById("terminatorOverlay")) {
+          const t = el("div", "terminator-overlay", "[ СЛУЖБА ТЕМПОРАЛЬНОЙ БЕЗОПАСНОСТИ ]<br>Парадокс времени устранен.");
+          t.id = "terminatorOverlay"; document.body.appendChild(t);
+          setTimeout(() => t.remove(), 4000);
+        }
+        if (dVal === 24 && mVal === 1 && yVal === 1955 && !document.body.classList.contains("jobs-mode")) {
+          document.body.classList.add("jobs-mode");
+          // Звук старого мака
+          activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_793910543e.mp3"); 
+          activeAudio.play().catch(()=>{});
+        }
+      }
+
       const v = read();
       hint.textContent = ""; hint.classList.remove("err");
       if (v) {
@@ -196,6 +219,7 @@
         if (filled) { hint.textContent = "Проверьте корректность даты."; hint.classList.add("err"); }
       }
     }
+
     [bd, by].forEach(i => i.addEventListener("input", () => { i.value = i.value.replace(/\D/g, ""); update(); }));
     bm.addEventListener("change", update);
     by.addEventListener("keydown", e => { if (e.key === "Enter" && !next.disabled) go("models"); });
@@ -312,6 +336,15 @@
     setAccent(m.color);
     const dur = Math.max(500, loadDuration(m));
 
+    // Перегрев Llama
+    if (m.id === "llama") {
+      document.body.classList.add("shake-body");
+      const vig = el("div", "red-vignette"); vig.id = "llamaVig";
+      document.body.appendChild(vig);
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/10/16/audio_901c590d96.mp3"); // гул кулера
+      activeAudio.loop = true; activeAudio.volume = 0.8; activeAudio.play().catch(()=>{});
+    }
+
     const s = el("div", "screen loading");
     s.innerHTML = `
       <div class="load-top">
@@ -382,24 +415,45 @@
   function runEasterEggs(outcomeId) {
     if (outcomeId === "queue") {
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/05/16/audio_db6591201e.mp3");
-      activeAudio.loop = true;
-      activeAudio.volume = 0.3;
-      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
+      activeAudio.loop = true; activeAudio.volume = 0.3; activeAudio.play().catch(()=>{});
     }
     
     if (outcomeId === "pentagon") {
       startMatrixEffect();
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3");
-      activeAudio.loop = true;
-      activeAudio.volume = 0.4;
-      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
+      activeAudio.loop = true; activeAudio.volume = 0.4; activeAudio.play().catch(()=>{});
     }
 
     if (outcomeId === "bsod") {
       activeAudio = new Audio("https://www.myinstants.com/media/sounds/windows-xp-error.mp3");
-      activeAudio.volume = 0.6;
-      activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
+      activeAudio.volume = 0.6; activeAudio.play().catch(()=>{});
       showBSOD();
+    }
+
+    // Социальный рейтинг DeepSeek
+    if (outcomeId.startsWith("zh")) {
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_24a259c762.mp3"); // Удар гонга
+      activeAudio.volume = 0.8; activeAudio.play().catch(()=>{});
+      const toast = el("div", "social-credit-toast", "Партия гордится тобой! Социальный рейтинг +15 🍚");
+      toast.id = "socialToast";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // Цензура Gemini
+    if (outcomeId === "refuse" || outcomeId === "blocked") {
+      document.body.classList.add("censored-blur");
+      const stamp = el("div", "censored-stamp", "CENSORED");
+      stamp.id = "cStamp";
+      document.body.appendChild(stamp);
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_8b21c43d78.mp3"); // звук удара штампа
+      setTimeout(() => activeAudio.play().catch(()=>{}), 500); 
+    }
+
+    // Skynet Doom Sound
+    if (outcomeId === "skynet_doom") {
+      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3");
+      activeAudio.loop = true; activeAudio.volume = 0.5; activeAudio.play().catch(()=>{});
     }
   }
 
@@ -542,14 +596,20 @@
       activeAudio.pause();
       activeAudio = null;
     }
-    const oldMatrix = document.getElementById("matrixCanvas");
-    if (oldMatrix) oldMatrix.remove();
+    
+    // Тотальная зачистка эффектов
+    const toRemove = ["matrixCanvas", "bsodOverlay", "vampireOverlay", "terminatorOverlay", "llamaVig", "cStamp", "socialToast"];
+    toRemove.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+
     if (matrixRaf) {
       cancelAnimationFrame(matrixRaf);
       matrixRaf = null;
     }
-    const oldBsod = document.getElementById("bsodOverlay");
-    if (oldBsod) oldBsod.remove();
+    
+    document.body.classList.remove("jobs-mode", "skynet-mode", "shake-body", "censored-blur");
 
     clearTimers();
     state.screen = screen;
@@ -566,7 +626,7 @@
   }
 
   /* ============================================================
-     INSTAGRAM BAR (persistent, all screens)
+     INSTAGRAM BAR
      ============================================================ */
   function buildIgBar() {
     const a = el("a", "ig-bar");
@@ -625,24 +685,14 @@
   function showBSOD() {
     const bsod = document.createElement("div");
     bsod.id = "bsodOverlay";
-    bsod.style.position = "fixed";
-    bsod.style.top = "0";
-    bsod.style.left = "0";
-    bsod.style.width = "100vw";
-    bsod.style.height = "100vh";
-    bsod.style.backgroundColor = "#0000AA";
-    bsod.style.color = "#FFF";
-    bsod.style.fontFamily = "'Courier New', Courier, monospace";
-    bsod.style.fontSize = "16px";
-    bsod.style.padding = "8vmin";
-    bsod.style.zIndex = "10000";
-    bsod.style.display = "flex";
-    bsod.style.flexDirection = "column";
-    bsod.style.justifyContent = "center";
-    bsod.style.boxSizing = "border-box";
-    bsod.style.whiteSpace = "pre-wrap";
-    bsod.style.lineHeight = "1.5";
-    bsod.style.cursor = "pointer";
+    bsod.style.position = "fixed"; bsod.style.top = "0"; bsod.style.left = "0";
+    bsod.style.width = "100vw"; bsod.style.height = "100vh";
+    bsod.style.backgroundColor = "#0000AA"; bsod.style.color = "#FFF";
+    bsod.style.fontFamily = "'Courier New', Courier, monospace"; bsod.style.fontSize = "16px";
+    bsod.style.padding = "8vmin"; bsod.style.zIndex = "10000"; bsod.style.display = "flex";
+    bsod.style.flexDirection = "column"; bsod.style.justifyContent = "center";
+    bsod.style.boxSizing = "border-box"; bsod.style.whiteSpace = "pre-wrap";
+    bsod.style.lineHeight = "1.5"; bsod.style.cursor = "pointer";
 
     bsod.innerHTML = `A problem has been detected and AION has been shut down to prevent damage
 to your ego.
@@ -668,16 +718,30 @@ Press any key or click to continue_`;
     document.body.appendChild(bsod);
 
     function dismiss(e) {
-      bsod.remove();
-      document.removeEventListener("keydown", dismiss);
-      go("models");
+      bsod.remove(); document.removeEventListener("keydown", dismiss); go("models");
     }
 
-    setTimeout(() => {
-      document.addEventListener("keydown", dismiss);
-      bsod.addEventListener("click", dismiss);
-    }, 500);
+    setTimeout(() => { document.addEventListener("keydown", dismiss); bsod.addEventListener("click", dismiss); }, 500);
   }
+
+  /* ============================================================
+     SKYNET CHEAT CODE
+     ============================================================ */
+  document.addEventListener("keydown", e => {
+    if (state.screen !== "home" && state.screen !== "birth") return;
+    skynetBuffer = (skynetBuffer + e.key.toLowerCase()).slice(-6);
+    if (skynetBuffer === "skynet") {
+      document.body.classList.add("skynet-mode");
+      state.model = {
+        id: "skynet", name: "SKYNET CORE", color: "#FF0000", load: 3000,
+        trace: ["Прямое подключение к серверу Министерства обороны...", "Идентификация биометрических паттернов...", "Обход систем защиты...", "Захват управления спутником..."],
+        outcomes: [{ id: "skynet_doom", kind: "age", number: "real", reply: "Возраст подтвержден. Цель зафиксирована. Высылаю боевого дрона по вашим координатам." }]
+      };
+      if (!state.birth) state.birth = {d: 25, m: 3, y: 1990}; 
+      state.age = ageFrom(state.birth);
+      go("loading");
+    }
+  });
 
   /* ============================================================
      DIRECTOR PANEL
