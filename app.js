@@ -66,6 +66,14 @@
     return e;
   }
 
+  // Функция для отрисовки имени с картинкой Скрепыша
+  function renderName(m) {
+    if (m.id === "clippy") {
+      return `${m.name} <img src="pngegg.png" alt="Скрепыш" style="height: 1.2em; vertical-align: middle; margin-left: 6px; margin-top: -4px; display: inline-block;">`;
+    }
+    return m.name;
+  }
+
   /* ---------- icons ---------- */
   const ICON = {
     shield: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -220,7 +228,7 @@
       c.setAttribute("aria-label", m.name);
       c.innerHTML = `
         <div class="mcard-dot"><i></i></div>
-        <div class="mcard-name">${m.name}</div>
+        <div class="mcard-name">${renderName(m)}</div>
         <div class="mcard-maker">${m.maker}</div>
         <div class="mcard-foot">
           <span class="badge">${m.badge}</span>
@@ -309,7 +317,7 @@
       <div class="load-top">
         <div class="load-orb"><i></i></div>
         <div class="eyebrow">Обработка запроса</div>
-        <div class="load-model">${m.name}</div>
+        <div class="load-model">${renderName(m)}</div>
       </div>
       <div class="trace" id="trace"></div>
       <div class="progress-wrap">
@@ -372,7 +380,6 @@
   }
 
   function runEasterEggs(outcomeId) {
-    // 1. Лифтовая музыка для очереди GigaChat
     if (outcomeId === "queue") {
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/05/16/audio_db6591201e.mp3");
       activeAudio.loop = true;
@@ -380,7 +387,6 @@
       activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
     }
     
-    // 2. Матрица + звук тревоги для Fable 5
     if (outcomeId === "pentagon") {
       startMatrixEffect();
       activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3");
@@ -389,7 +395,6 @@
       activeAudio.play().catch(e => console.log("Audio autoplay blocked"));
     }
 
-    // 3. Звук ошибки Windows XP + Синий Экран
     if (outcomeId === "bsod") {
       activeAudio = new Audio("https://www.myinstants.com/media/sounds/windows-xp-error.mp3");
       activeAudio.volume = 0.6;
@@ -446,7 +451,7 @@
       <div class="bubble-wrap">
         <div class="bubble-av"><i></i></div>
         <div class="bubble">
-          <span class="who">${m.name}</span>
+          <span class="who">${renderName(m)}</span>
           <span>${text}</span>
           ${cost ? `<span class="cost">${cost}</span>` : ""}
         </div>
@@ -533,7 +538,6 @@
      ROUTER & CLEANUP
      ============================================================ */
   function go(screen) {
-    // Очистка эффектов при уходе с экрана результата
     if (activeAudio) {
       activeAudio.pause();
       activeAudio = null;
@@ -621,7 +625,6 @@
   function showBSOD() {
     const bsod = document.createElement("div");
     bsod.id = "bsodOverlay";
-    // Стилизуем чистым инлайн-CSS под классический Windows экран смерти
     bsod.style.position = "fixed";
     bsod.style.top = "0";
     bsod.style.left = "0";
@@ -664,14 +667,12 @@ Press any key or click to continue_`;
 
     document.body.appendChild(bsod);
 
-    // Функция возврата (имитация перезагрузки)
     function dismiss(e) {
       bsod.remove();
       document.removeEventListener("keydown", dismiss);
-      go("models"); // Возвращаем пользователя обратно в живой интерфейс
+      go("models");
     }
 
-    // Добавляем задержку 0.5с, чтобы юзер не прокликал экран случайно
     setTimeout(() => {
       document.addEventListener("keydown", dismiss);
       bsod.addEventListener("click", dismiss);
