@@ -335,7 +335,7 @@
     setAccent(m.color);
     const dur = Math.max(500, loadDuration(m));
 
-    // Перегрев Llama (исправлен на черную виньетку)
+    // Перегрев Llama
     if (m.id === "llama") {
       document.body.classList.add("shake-body");
       const vig = el("div", "overheat-vignette"); vig.id = "llamaVig";
@@ -442,11 +442,31 @@
     // Цензура Gemini
     if (outcomeId === "refuse" || outcomeId === "blocked") {
       document.body.classList.add("censored-blur");
+
+      // Создаем оверлей на весь экран, чтобы ловить клик в любом месте
+      const overlay = el("div", "");
+      overlay.id = "cOverlay";
+      overlay.style.position = "fixed";
+      overlay.style.inset = "0";
+      overlay.style.zIndex = "10000";
+      overlay.style.cursor = "pointer";
+
       const stamp = el("div", "censored-stamp", "CENSORED");
-      stamp.id = "cStamp";
-      document.body.appendChild(stamp);
-      activeAudio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_8b21c43d78.mp3"); // звук удара штампа
-      setTimeout(() => activeAudio.play().catch(()=>{}), 500); 
+      overlay.appendChild(stamp);
+      document.body.appendChild(overlay);
+
+      // Мемный гулкий удар (Vine Boom) — работает безотказно
+      activeAudio = new Audio("https://www.myinstants.com/media/sounds/vine-boom.mp3");
+      activeAudio.volume = 0.8;
+
+      // Тайминг 600мс: звук бахнет ровно в момент приземления анимации
+      setTimeout(() => activeAudio.play().catch(e => console.log(e)), 600);
+
+      // Снимаем блюр и удаляем печать при любом клике
+      overlay.addEventListener("click", () => {
+        document.body.classList.remove("censored-blur");
+        overlay.remove();
+      });
     }
 
     // Skynet Doom Sound
@@ -597,7 +617,7 @@
     }
     
     // Тотальная зачистка эффектов
-    const toRemove = ["matrixCanvas", "bsodOverlay", "vampireOverlay", "terminatorOverlay", "llamaVig", "cStamp", "socialToast"];
+    const toRemove = ["matrixCanvas", "bsodOverlay", "vampireOverlay", "terminatorOverlay", "llamaVig", "cOverlay", "socialToast"];
     toRemove.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.remove();
