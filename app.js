@@ -10,7 +10,6 @@
   const app = document.getElementById("app");
   const root = document.documentElement;
   const CUR_YEAR = new Date().getFullYear();
-  const IG_URL = "https://instagram.com/art1uca";
 
   /* ---------- persistent state ---------- */
   const saved = (() => { try { return JSON.parse(localStorage.getItem("aion") || "{}"); } catch (e) { return {}; } })();
@@ -71,15 +70,12 @@
     shield: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
     ask: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.8 2.8 0 0 1 5.5.7c0 1.9-2.8 2.5-2.8 4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
     error: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 9v5"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
-    alarm: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16a6 6 0 0 1 12 0z"/><path d="M4 16h16"/><path d="M10 20h4"/><path d="M12 5V3M5.5 7.5L4.3 6.3M18.5 7.5l1.2-1.2"/></svg>',
-    clip: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11l-8.5 8.5a4 4 0 0 1-5.7-5.7L13 6.6a2.5 2.5 0 0 1 3.5 3.5L8.8 17.8"/></svg>',
     lock: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
     spark: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg>',
     lockSmall: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
     check: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-11"/></svg>',
     close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
-    instagram: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>',
   };
   const iconFor = k => ICON[k] || ICON.spark;
 
@@ -117,7 +113,7 @@
       <div class="home-cta">
         <button class="btn btn-primary" id="start">Начать</button>
       </div>
-      <a class="byline" href="${IG_URL}" target="_blank" rel="noopener">сделал <b>@art1uca</b> · подпишись →</a>
+      <div class="byline">by <b>@art1uca</b></div>
     `;
     s.querySelector("#start").onclick = () => go("birth");
     return s;
@@ -343,6 +339,7 @@
   function countUp(node, target) {
     if (RM || target === 0) { node.textContent = target; return; }
     const dur = 1200, start = performance.now();
+    const big = target > 200; // year-style numbers spin faster feel
     function tick(now) {
       const t = Math.min(1, (now - start) / dur);
       const e = 1 - Math.pow(1 - t, 3);
@@ -411,7 +408,6 @@
       <div class="btn-row result-actions">
         <button class="btn btn-primary" data-act="other">Другая модель</button>
         <button class="btn btn-ghost" data-act="again">Запустить снова</button>
-        <a class="btn btn-ig" href="${IG_URL}" target="_blank" rel="noopener">${ICON.instagram}<span>Ещё приколы — @art1uca</span></a>
       </div>`;
   }
   function wireActions(s) {
@@ -422,7 +418,7 @@
   }
 
   /* ============================================================
-     PAYWALL (AION Ultra) + vibecoder confession
+     PAYWALL (AION Ultra)
      ============================================================ */
   function buildPaywall() {
     const m = state.model;
@@ -451,35 +447,16 @@
     buy.onclick = () => {
       buy.disabled = true;
       buy.textContent = "Обработка платежа…";
-      after(() => showConfession(s), 2400);
+      after(() => {
+        buy.disabled = false;
+        buy.textContent = p.cta;
+        const fp = s.querySelector(".fineprint");
+        fp.textContent = "Не удалось списать средства. Возраст временно недоступен. Попробуйте другую карту.";
+        fp.style.color = "#E0795C";
+      }, 2200);
     };
     s.querySelector("#back").onclick = () => go("models");
     return s;
-  }
-
-  function showConfession(s) {
-    setAccent("#E0795C");
-    s.innerHTML = `
-      <div class="spacer"></div>
-      <div class="result-top">
-        <div class="result-icon">${ICON.error}</div>
-        <div class="result-title">Платёж не прошёл 🫠</div>
-      </div>
-      <div class="bubble-wrap">
-        <div class="bubble-av"><i></i></div>
-        <div class="bubble">
-          <span class="who">AION · системное сообщение</span>
-          <span>Окей, честно: платёжную систему сюда так и не подключили. Это приложение собрал за вечер очередной вайбкодер и на радостях вписал в форму оплаты <b>номер своей карты</b> — чтобы все ваши $19.99 улетали лично ему. Даже это он толком не настроил, так что денег никто не списал, а ваш возраст по-прежнему бесплатный. Зато вайбкодера зовут <b>@art1uca</b> — подпишитесь, дальше будет ещё смешнее.</span>
-        </div>
-      </div>
-      <div class="spacer"></div>
-      <div class="btn-row result-actions">
-        <a class="btn btn-primary" href="${IG_URL}" target="_blank" rel="noopener">Подписаться на @art1uca</a>
-        <button class="btn btn-ghost" data-act="other">Назад к моделям</button>
-      </div>
-    `;
-    const other = s.querySelector('[data-act="other"]');
-    if (other) other.onclick = () => go("models");
   }
 
   /* ============================================================
@@ -498,19 +475,6 @@
       case "paywall": node = buildPaywall(); break;
     }
     if (node) show(node);
-  }
-
-  /* ============================================================
-     INSTAGRAM BAR (persistent, all screens)
-     ============================================================ */
-  function buildIgBar() {
-    const a = el("a", "ig-bar");
-    a.href = IG_URL;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.setAttribute("aria-label", "Instagram @art1uca — подписаться");
-    a.innerHTML = `<span class="ig-ico">${ICON.instagram}</span><span>@art1uca</span><span class="ig-sub">· подписаться</span>`;
-    document.body.appendChild(a);
   }
 
   /* ============================================================
@@ -633,7 +597,6 @@
   /* ============================================================
      INIT
      ============================================================ */
-  buildIgBar();
   buildDirector();
   go("home");
 
