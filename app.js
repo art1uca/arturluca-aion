@@ -434,7 +434,7 @@
       <div class="btn-row result-actions">
         <button class="btn btn-primary" data-act="other">Другая модель</button>
         <button class="btn btn-ghost" data-act="again">Запустить снова</button>
-        <a class="btn btn-ig" href="${IG_URL}" target="_blank" rel="noopener">${ICON.instagram}<span>Подпишись, если нравится — @art1uca</span></a>
+        <a class="btn btn-ig" href="${IG_URL}" target="_blank" rel="noopener">${ICON.instagram}<span>Подпишись — @art1uca</span></a>
       </div>`;
   }
   function wireActions(s) {
